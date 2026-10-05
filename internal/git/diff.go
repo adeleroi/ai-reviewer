@@ -1,4 +1,4 @@
-package aireviewer
+package git
 
 import (
 	"bytes"

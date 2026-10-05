@@ -1,12 +1,13 @@
 package main
 
 import (
-	aireviewer "ai-reviewer/pkg/reviewer"
+	"ai-reviewer/internal/git"
+	"ai-reviewer/internal/reviewer"
 	"fmt"
 )
 
 func main() {
-	diff, err := aireviewer.GetStateDiff("example-4.go")
+	diff, err := git.GetStateDiff("experiments/code-1.go")
 	if err != nil {
 		panic(err)
 	}
@@ -16,7 +17,13 @@ func main() {
 	`
 	fmt.Println(diff)
 
-	reviews, err := aireviewer.GetReviewFor([]byte(diff), instruction)
+	ctxFile, err := reviewer.ReadFile("./experiments/external-context-1.go")
+	if err != nil {
+		panic(err)
+	}
+	ctxStr := string(ctxFile)
+
+	reviews, err := reviewer.GetReviewFor(diff, instruction, ctxStr)
 	if err != nil {
 		panic(err)
 	}

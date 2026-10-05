@@ -1,4 +1,4 @@
-package aireviewer
+package reviewer
 
 import "os"
 

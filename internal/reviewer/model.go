@@ -1,4 +1,4 @@
-package aireviewer
+package reviewer
 
 import (
 	"context"
@@ -71,14 +71,18 @@ func schemaBuilderForReview() map[string]any {
 	}
 }
 
-func clientResponse(f []byte, instruction string) (*responses.Response, error) {
+func clientResponse(f string, instruction string, additionalCtx string) (*responses.Response, error) {
 	client := openai.NewClient()
 	systemMsg := responses.ResponseInputItemParamOfMessage(
 		responses.ResponseInputMessageContentListParam{responses.ResponseInputContentParamOfInputText(instruction)},
 		responses.EasyInputMessageRoleSystem,
 	)
 	userMsg := responses.ResponseInputItemParamOfMessage(
-		responses.ResponseInputMessageContentListParam{responses.ResponseInputContentParamOfInputText(string(f))},
+		responses.ResponseInputMessageContentListParam{responses.ResponseInputContentParamOfInputText(f)},
+		responses.EasyInputMessageRoleUser,
+	)
+	contextMsg := responses.ResponseInputItemParamOfMessage(
+		responses.ResponseInputMessageContentListParam{responses.ResponseInputContentParamOfInputText(additionalCtx)},
 		responses.EasyInputMessageRoleUser,
 	)
 	jsonConfig := &responses.ResponseFormatTextJSONSchemaConfigParam{
@@ -92,6 +96,7 @@ func clientResponse(f []byte, instruction string) (*responses.Response, error) {
 			OfInputItemList: responses.ResponseInputParam{
 				systemMsg,
 				userMsg,
+				contextMsg,
 			},
 		},
 		Text: responses.ResponseTextConfigParam{
@@ -114,8 +119,8 @@ func clientResponse(f []byte, instruction string) (*responses.Response, error) {
 
 }
 
-func GetReviewFor(f []byte, instruction string) (Review, error) {
-	response, err := clientResponse(f, instruction)
+func GetReviewFor(f string, instruction string, additionalCtx string) (Review, error) {
+	response, err := clientResponse(f, instruction, additionalCtx)
 	if err != nil {
 		return Review{}, err
 	}

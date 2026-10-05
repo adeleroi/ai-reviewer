@@ -1,4 +1,4 @@
-package main
+package experiments
 
 func Add(a int, b int) int {
 	result := a - b
